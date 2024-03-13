@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\OrderDetail;
+use App\Models\Discount;
 use File;
 use Illuminate\Support\Facades\Storage;
 
@@ -39,6 +40,7 @@ class ProductController extends Controller
     }
 
     public function save(Request $req){
+        $disc = json_decode($req->discount);
         $product = new Product;
 
         $product->name = $req->name;
@@ -60,6 +62,21 @@ class ProductController extends Controller
 
         $product->save();
 
+        // $constraintDiscount = json_decode($req->input('constraintDiscount'));
+        // $discount = json_decode($req->input('discount'));
+        // $discountDescription = json_decode($req->input('discountDescription'));
+
+        // Loop dan simpan data seperti yang Anda lakukan sebelumnya
+        foreach ($disc as $index => $data) {
+            $disc = new Discount;
+            $disc->product_id = $product->id;
+            $disc->constraint = $data->constraint;
+            $disc->discounts = $data->discount;
+            $disc->description = $data->description; 
+
+            $disc->save();
+        }
+
         return response()->json(['message' => 'product successfully created']);
     }
 
@@ -74,7 +91,7 @@ class ProductController extends Controller
     }
 
     public function view($id){
-        $product = Product::findOrFail($id);
+        $product = Product::with('discounts')->findOrFail($id);
         $product->category_name = $product->category->name;
 
         return response()->json(['product' => $product]);
@@ -87,6 +104,7 @@ class ProductController extends Controller
     }
 
     public function update(Request $req){
+        $disc = json_decode($req->discount);
         $product = Product::findOrFail($req->id);
 
         $product->name = $req->name;
@@ -111,6 +129,19 @@ class ProductController extends Controller
         }
 
         $product->save();
+
+        $discounts = Discount::where('product_id', $product->id)->delete();
+        
+        foreach ($disc as $index => $data) {
+            $disc = new Discount;
+            $disc->product_id = $product->id;
+            $disc->constraint = $data->constraint;
+            $disc->discounts = $data->discount;
+            $disc->description = $data->description; 
+
+            $disc->save();
+        }
+
 
         return response()->json(['message' => 'product successfully updated']);
     }

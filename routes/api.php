@@ -70,6 +70,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/get-city-by-id/{id}', [App\Http\Controllers\Api\ProfileController::class, 'cityById']);
 
     Route::post('/get-cart', [App\Http\Controllers\Api\CartController::class, 'getCart']);
+    Route::post('/sync-cart', [App\Http\Controllers\Api\CartController::class, 'syncCart']);
     Route::post('/add-cart', [App\Http\Controllers\Api\CartController::class, 'addCart']);
     Route::post('/add-item-cart', [App\Http\Controllers\Api\CartController::class, 'addItemCart']);
     Route::post('/delete-cart', [App\Http\Controllers\Api\CartController::class, 'deleteCart']);
